@@ -1,0 +1,2 @@
+class UnknownStdFunc(Exception):
+    pass
