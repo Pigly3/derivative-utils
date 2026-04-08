@@ -37,7 +37,7 @@ def cotangent(x, terms=100):
     except ZeroDivisionError: pass
 def exponential(x, terms=100):
   o = 0
-  if type(x) == Number: x = x.eval()
+  if isinstance(x, Number): x = x.eval()
   for i in range(terms):
     o += x**i/factorial(i)
   return o
