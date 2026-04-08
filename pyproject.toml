@@ -1,6 +1,6 @@
 [project]
 name = "derivative-utils"
-version = "0.1.2"
+version = "0.2.0"
 description = "Tools for computing and working with derivatives of functions."
 readme = "README.md"
 requires-python = ">=3.14"

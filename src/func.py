@@ -2,6 +2,7 @@ from util import *
 from const import *
 from decimal import Decimal
 from expressions import *
+
 def cos(x, terms=100, places=12):
     o = 0
     x = x % (2*pi)

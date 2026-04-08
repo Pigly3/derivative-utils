@@ -1,51 +1,78 @@
 from decimal import Decimal
 import exceptions
 from func import *
-class Expression: pass
-class Variable: pass
+
+def ensureNumber(x):
+  return Number(x) if not isinstance(x, Number) else x
+def convertNumber(x):
+  return Number(x) if isinstance(x, int) or isinstance(x, float) or isinstance(x, Decimal) else x
+
+class Expression:
+  def __add__(self, n):
+    if not isinstance(n, Expression): n = Number(n)
+    return simplify(Sum(self, n))
+  def __radd__(self, n):
+    if not isinstance(n, Expression): n = Number(n)
+    return simplify(Sum(self, n))
+  def __sub__(self, n):
+    if not isinstance(n, Expression): n = Number(n)
+    return simplify(Difference(self, n))
+  def __rsub__(self, n):
+    if not isinstance(n, Expression): n = Number(n)
+    return simplify(Difference(n, self))
+  def __mul__(self, n):
+    if not isinstance(n, Expression): n = Number(n)
+    return simplify(Product(self, n))
+  def __rmul__(self, n):
+    if not isinstance(n, Expression): n = Number(n)
+    return simplify(Product(self, n))
+  def __truediv__(self, n):
+    if not isinstance(n, Expression): n = Number(n)
+    return simplify(Quotient(self, n))
+  def __rtruediv__(self, n):
+    if not isinstance(n, Expression): n = Number(n)
+    return simplify(Quotient(n, self))
+  def __pow__(self, n):
+    return simplify(Exponent(self, n))
+  def __rpow__(self, n):
+    return simplify(Exponent(n, self))
+class Variable(Expression): pass
 class MathExpression(Expression):
   def __init__(self, value):
     self.value = value
   def __str__(self):
     return str(self.value)
   def eval(self, val):
-    if type(val) != Number:
+    if not isinstance(val, Number):
       val = Number(val) 
       return self.value.eval(val)
 class Number(Expression):
   def __init__(self, value):
-    if type(value) != Decimal: value = Decimal(value)
+    if not isinstance(value, Decimal): value = Decimal(value)
     self.value = value
   def __str__(self):
     return str(self.value)
-  def __sub__(self, n):
-    return Number(self.value-n)
-  def __add__(self, n):
-    return Number(self.value+n)
   def eval(self, val=0):
     return self.value
+
 class Product(Expression):
   def __init__(self, a, b):
-    if type(a) == int or type(a) == float or type(a) == Decimal:
-      a = Number(a)
-    if type(b) == int or type(b) == float or type(b) == Decimal:
-      b = Number(b)
-      if (a == None): self.a = Number(1)
-      if (b == None): self.b = Number(1)
+    if (a == None): self.a = Number(1)
+    if (b == None): self.b = Number(1)
+    a = convertNumber(a)
+    b = convertNumber(b)
     self.a = a
     self.b = b
   def __str__(self): return f"{self.a}*{self.b}"
   def eval(self, val):
-    if type(val) != Number: val = Number(val)
+    if not isinstance(val, Number): val = Number(val)
     return self.a.eval(val) * self.b.eval(val)
 class Quotient(Expression):
   def __init__(self, a, b):
-    if type(a) == int or type(a) == float or type(a) == Decimal:
-      a = Number(a)
-      if type(b) == int or type(b) == float or type(b) == Decimal:
-        b = Number(b)
-      self.a = a
-      self.b = b
+    a = convertNumber(a)
+    b = convertNumber(b)
+    self.a = a
+    self.b = b
   def __str__(self): return f"{self.a}/{self.b}"
   def eval(self, val):
     if type(val) != Number:
@@ -53,42 +80,35 @@ class Quotient(Expression):
     return self.a.eval(val) / self.b.eval(val)
 class Sum(Expression):
   def __init__(self, a, b):
-    if type(a) == int or type(a) == float or type(a) == Decimal:
-      a = Number(a)
-    if type(b) == int or type(b) == float or type(b) == Decimal:
-      b = Number(b)
+    a = convertNumber(a)
+    b = convertNumber(b)
     self.a = a
     self.b = b
   def __str__(self): return f"({self.a}+{self.b})"
   def eval(self, val):
-    if type(val) != Number:
-      val = Number(val)
+    val = ensureNumber(val)
     return self.a.eval(val) + self.b.eval(val)
 class Exponent(Expression):
   def __init__(self, x, exp):
-    if type(x) == int or type(x) == float or type(x) == Decimal:
-      x = Number(x)
-    if type(exp) == int or type(exp) == float or type(exp) == Decimal:
-      exp = Number(exp)
+    x = convertNumber(x)
+    exp = convertNumber(exp)
     self.x = x
     self.exp = exp
   def __str__(self): return f"({self.x})^({self.exp})"
   def eval(self, val):
-    if type(val) != Number:
-      val = Number(val)
+    val = ensureNumber(val)
     return self.x.eval(val) ** self.exp.eval(val)
-class DependentVariable(Variable):
+class Y(Variable):
   def __str__(self):
     return "y"
-class DepedentVariableDerivative(Variable):
+class DyDx(Variable):
   def __init__(self, degree=1):
     self.degree = degree
   def __str__(self):
     if self.degree == 1: return f"y{'\''*self.degree}"
-class IndependentVariable(Variable):
+class X(Variable):
   def eval(self, val):
-    if type(val) != Number:
-      val = Number(val)
+    val = ensureNumber(val)
     return val.eval()
   def __str__(self): return "x"
 class Polynomial(Expression):
@@ -105,16 +125,13 @@ class TwoVariableEqurtion:
   pass
 class Difference(Expression):
   def __init__(self, a, b):
-    if type(a) == int or type(a) == float or type(a) == Decimal:
-      a = Number(a)
-    if type(b) == int or type(b) == float or type(b) == Decimal:
-      b = Number(b)
+    a = convertNumber(a)
+    b = convertNumber(b)
     self.a = a
     self.b = b
   def __str__(self): return f"({self.a}-{self.b})"
   def eval(self, val):
-    if type(val) != Number:
-      val = Number(val)
+    val = ensureNumber(val)
     return self.a.eval(val) - self.b.eval(val)
 class StdFunction(Expression):
   def __init__(self, ftype, val):
@@ -154,35 +171,69 @@ class StdFunction(Expression):
     elif self.ftype == "ln":
       return ln(x)
 def simplify(exp):
-  if type(exp) == Product or type(exp) == Sum or type(exp) == Difference:
+  if isinstance(exp, Product) or isinstance(exp, Sum) or isinstance(exp, Difference) or isinstance(exp, Quotient):
     exp.a = simplify(exp.a)
     exp.b = simplify(exp.b)
-  elif type(exp) == Exponent:
+  elif isinstance(exp, Exponent):
     exp.x = simplify(exp.x)
     exp.exp = simplify(exp.exp)
-  elif type(exp) == StdFunction:
+  elif isinstance(exp, StdFunction):
     exp.val = simplify(exp.val)
-  elif type(exp) == MathExpression:
+  elif isinstance(exp, MathExpression):
     exp.value = simplify(exp.value)
   
 
-  if type(exp) == MathExpression: return simplify(exp.value)
-  elif type(exp) == Product:
-    if type(exp.a) == Number and exp.a.value == 1: return simplify(exp.b) #fix this
-    elif type(exp.b) == Number and exp.b.value == 1: return simplify(exp.a)
-    elif type(exp.a) == Number and exp.a.value == 0: return Number(0)
-    elif type(exp.b) == Number and exp.b.value == 0: return Number(0)
-  elif type(exp) == Quotient:
+  if isinstance(exp, MathExpression): return simplify(exp.value)
+  elif isinstance(exp, Product):
+    if isinstance(exp.a, Number) and exp.a.value == 1: return simplify(exp.b)
+    elif isinstance(exp.b, Number) and exp.b.value == 1: return simplify(exp.a)
+    elif isinstance(exp.a, Number) and exp.a.value == 0: return Number(0)
+    elif isinstance(exp.b, Number) and exp.b.value == 0: return Number(0)
+    elif isinstance(exp.a, Number) and isinstance(exp.b, Number):
+      return Number(exp.a.value*exp.b.value)
+    elif isinstance(exp.a, Product):
+      if isinstance(exp.b, Number):
+        if isinstance(exp.a.a, Number):
+          return simplify(Product(exp.b.value*exp.a.a.value, exp.a.b))
+        elif isinstance(exp.a.b, Number):
+          return simplify(Product(exp.b.value*exp.a.b.value, exp.a.a))
+    elif isinstance(exp.b, Product):
+      if isinstance(exp.a, Number):
+        if isinstance(exp.b.a, Number):
+          return simplify(Product(exp.a*exp.b.a, exp.b.b))
+        elif isinstance(exp.b.b, Number):
+          return simplify(Product(exp.a*exp.b.b, exp.b.a))
+  elif isinstance(exp, Quotient):
     if exp.b == Number(1): return simplify(exp.a)
-    elif type(exp.b) == Quotient: exp = Product(exp.a, Quotient(exp.b.b, exp.b.a))
-  elif type(exp) == StdFunction:
+    elif isinstance(exp.b, Quotient): exp = Product(exp.a, Quotient(exp.b.b, exp.b.a))
+    elif isinstance(exp.a, Number):
+      if isinstance(exp.b, Exponent):
+        return simplify(Product(exp.a, Exponent(exp.b.x, Product(-1, exp.b.exp))))
+      else:
+        return simplify(Product(exp.a, Exponent(exp.b, -1)))
+  elif isinstance(exp, StdFunction):
     if exp.ftype == "ln":
-      if type(exp.val) == Exponent:
+      if isinstance(exp.val, Exponent):
         return Product(simplify(exp.val.exp), simplify(StdFunction("ln", simplify(exp.val.x))))
-      elif type(exp.val) == Product:
+      elif isinstance(exp.val, Product):
         return Sum(simplify(StdFunction("ln", simplify(exp.val.a))), simplify(StdFunction("ln", simplify(exp.val.b))))
-      elif type(exp.val) == Quotient:
+      elif isinstance(exp.val, Quotient):
         return Difference(simplify(StdFunction("ln", simplify(exp.val.a))), simplify(StdFunction("ln", simplify(exp.val.b))))
-  elif type(exp) == Exponent:
-    if type(exp.x) == Exponent:
-      return Exponent(simplify(exp.x.x), simplify(Product(exp.x.exp, exp.exp)))
+  elif isinstance(exp, Exponent):
+    if isinstance(exp.x, Exponent):
+      return simplify(Exponent(exp.x.x, Product(exp.x.exp, exp.exp)))
+    elif isinstance(exp.exp, Number) and exp.exp.value == 1:
+      return simplify(exp.x)
+  elif isinstance(exp, Sum):
+    if isinstance(exp.a, Number) and isinstance(exp.b, Number):
+      return Number(exp.a.value + exp.b.value)
+    elif isinstance(exp.a, Number) and exp.a.value == 0:
+      return exp.b
+    elif isinstance(exp.b, Number) and exp.b.value == 0:
+      return exp.a
+  elif isinstance(exp, Difference):
+    if isinstance(exp.a, Number) and isinstance(exp.b, Number):
+      return Number(exp.a.value - exp.b.value)
+    elif isinstance(exp.b, Number) and exp.b == 0:
+      return exp.a
+  return exp
