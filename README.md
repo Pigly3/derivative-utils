@@ -8,7 +8,7 @@ This is in alpha, and may not work as intended.
 
 
 ### Get exact expressions for derivatives
-```
+```python
 from derivative-utils import differentiate
 from derivative-utils.expressions import *
 
