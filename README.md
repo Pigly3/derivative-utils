@@ -11,7 +11,7 @@ This is in alpha, and may not work as intended.
 from derivative-utils import differentiate
 from derivative-utils.expressions import *
 
-y = X()*StdFunction("ln", X())
+y = X()*ln(X())
 dydx = differentiate(y)
 print(dydx)
 ```

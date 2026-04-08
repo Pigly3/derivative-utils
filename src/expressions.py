@@ -157,19 +157,35 @@ class StdFunction(Expression):
     return f"{self.ftype}({self.val})"
   def eval(self, x):
     if self.ftype == "cos":
-      return cos(x)
+      return cosine(x)
     elif self.ftype == "sin":
-      return sin(x)
+      return sine(x)
     elif self.ftype == "tan":
-      return tan(x)
+      return tangent(x)
     elif self.ftype == "sec":
-      return sec(x)
+      return secant(x)
     elif self.ftype == "csc":
-      return csc(x)
+      return cosecant(x)
     elif self.ftype == "cot":
-      return cot(x)
+      return cotangent(x)
     elif self.ftype == "ln":
-      return ln(x)
+      return logn(x)
+    elif self.ftype == "arcsin":
+      return arcsine(x)
+    elif self.ftype == "arccos":
+      return arccosine(x)
+    elif self.ftype == "arctan":
+      return arctangent(x)
+
+#standard function bindings
+def ln(exp:Expression): return StdFunction("ln", exp)
+def sin(exp:Expression): return StdFunction("sin", exp)
+def cos(exp:Expression): return StdFunction("cos", exp)
+def tan(exp:Expression): return StdFunction("tan", exp)
+def arcsin(exp:Expression): return StdFunction("arcsin", exp)
+def arccos(exp:Expression): return StdFunction("arccos", exp)
+def arctan(exp:Expression): return StdFunction("arctan", exp)
+
 def simplify(exp):
   if isinstance(exp, Product) or isinstance(exp, Sum) or isinstance(exp, Difference) or isinstance(exp, Quotient):
     exp.a = simplify(exp.a)
