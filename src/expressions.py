@@ -1,7 +1,9 @@
 from decimal import Decimal
 import exceptions
 from func import *
-class MathExpression:
+class Expression: pass
+class Variable: pass
+class MathExpression(Expression):
   def __init__(self, value):
     self.value = value
   def __str__(self):
@@ -10,7 +12,7 @@ class MathExpression:
     if type(val) != Number:
       val = Number(val) 
       return self.value.eval(val)
-class Number:
+class Number(Expression):
   def __init__(self, value):
     if type(value) != Decimal: value = Decimal(value)
     self.value = value
@@ -22,7 +24,7 @@ class Number:
     return Number(self.value+n)
   def eval(self, val=0):
     return self.value
-class Product:
+class Product(Expression):
   def __init__(self, a, b):
     if type(a) == int or type(a) == float or type(a) == Decimal:
       a = Number(a)
@@ -36,7 +38,7 @@ class Product:
   def eval(self, val):
     if type(val) != Number: val = Number(val)
     return self.a.eval(val) * self.b.eval(val)
-class Quotient:
+class Quotient(Expression):
   def __init__(self, a, b):
     if type(a) == int or type(a) == float or type(a) == Decimal:
       a = Number(a)
@@ -49,7 +51,7 @@ class Quotient:
     if type(val) != Number:
       val = Number(val)
     return self.a.eval(val) / self.b.eval(val)
-class Sum:
+class Sum(Expression):
   def __init__(self, a, b):
     if type(a) == int or type(a) == float or type(a) == Decimal:
       a = Number(a)
@@ -62,7 +64,7 @@ class Sum:
     if type(val) != Number:
       val = Number(val)
     return self.a.eval(val) + self.b.eval(val)
-class Exponent:
+class Exponent(Expression):
   def __init__(self, x, exp):
     if type(x) == int or type(x) == float or type(x) == Decimal:
       x = Number(x)
@@ -75,20 +77,33 @@ class Exponent:
     if type(val) != Number:
       val = Number(val)
     return self.x.eval(val) ** self.exp.eval(val)
-class MainVariable:
+class DependentVariable(Variable):
+  def __str__(self):
+    return "y"
+class DepedentVariableDerivative(Variable):
+  def __init__(self, degree=1):
+    self.degree = degree
+  def __str__(self):
+    if self.degree == 1: return f"y{'\''*self.degree}"
+class IndependentVariable(Variable):
   def eval(self, val):
     if type(val) != Number:
       val = Number(val)
     return val.eval()
   def __str__(self): return "x"
-class Polynomial(MathExpression):
+class Polynomial(Expression):
   def __init__(self, coefficients):
     self.coeff = coefficients
   def eval(self, x):
     return sum([self.coeff[i]*x**(len(self.coeff-1-i)) for i in range(len(self.coeff))])
   def __str__(self):
     "+".join([f"{c}x^{len(self.coeff)-i-1}"] for i, c in enumerate(self.coeff))
-class Difference:
+class TwoVariableEqurtion:
+  def __init__(self, left:Expression, right:Expression):
+    self.left = left
+    self.right = right
+  pass
+class Difference(Expression):
   def __init__(self, a, b):
     if type(a) == int or type(a) == float or type(a) == Decimal:
       a = Number(a)
@@ -101,7 +116,7 @@ class Difference:
     if type(val) != Number:
       val = Number(val)
     return self.a.eval(val) - self.b.eval(val)
-class StdFunction():
+class StdFunction(Expression):
   def __init__(self, ftype, val):
     self.ftype = ftype
     self.val = val
