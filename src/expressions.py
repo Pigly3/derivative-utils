@@ -154,6 +154,18 @@ class StdFunction(Expression):
     elif self.ftype == "ln":
       return ln(x)
 def simplify(exp):
+  if type(exp) == Product or type(exp) == Sum or type(exp) == Difference:
+    exp.a = simplify(exp.a)
+    exp.b = simplify(exp.b)
+  elif type(exp) == Exponent:
+    exp.x = simplify(exp.x)
+    exp.exp = simplify(exp.exp)
+  elif type(exp) == StdFunction:
+    exp.val = simplify(exp.val)
+  elif type(exp) == MathExpression:
+    exp.value = simplify(exp.value)
+  
+
   if type(exp) == MathExpression: return simplify(exp.value)
   elif type(exp) == Product:
     if type(exp.a) == Number and exp.a.value == 1: return simplify(exp.b) #fix this
@@ -162,6 +174,15 @@ def simplify(exp):
     elif type(exp.b) == Number and exp.b.value == 0: return Number(0)
   elif type(exp) == Quotient:
     if exp.b == Number(1): return simplify(exp.a)
-    elif type(exp.b) == Quotient:
-      exp = Product(exp.a, Quotient(exp.b.b, exp.b.a))
-  return exp
+    elif type(exp.b) == Quotient: exp = Product(exp.a, Quotient(exp.b.b, exp.b.a))
+  elif type(exp) == StdFunction:
+    if exp.ftype == "ln":
+      if type(exp.val) == Exponent:
+        return Product(simplify(exp.val.exp), simplify(StdFunction("ln", simplify(exp.val.x))))
+      elif type(exp.val) == Product:
+        return Sum(simplify(StdFunction("ln", simplify(exp.val.a))), simplify(StdFunction("ln", simplify(exp.val.b))))
+      elif type(exp.val) == Quotient:
+        return Difference(simplify(StdFunction("ln", simplify(exp.val.a))), simplify(StdFunction("ln", simplify(exp.val.b))))
+  elif type(exp) == Exponent:
+    if type(exp.x) == Exponent:
+      return Exponent(simplify(exp.x.x), simplify(Product(exp.x.exp, exp.exp)))
