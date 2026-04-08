@@ -9,3 +9,6 @@ wheels/
 # Virtual environments
 .venv
 test.py
+
+#Publishing to pypi
+publish.sh
