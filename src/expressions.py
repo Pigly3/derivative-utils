@@ -13,7 +13,7 @@ class Expression:
     return simplify(Sum(self, n))
   def __radd__(self, n):
     if not isinstance(n, Expression): n = Number(n)
-    return simplify(Sum(self, n))
+    return simplify(Sum(n, self))
   def __sub__(self, n):
     if not isinstance(n, Expression): n = Number(n)
     return simplify(Difference(self, n))
@@ -25,7 +25,7 @@ class Expression:
     return simplify(Product(self, n))
   def __rmul__(self, n):
     if not isinstance(n, Expression): n = Number(n)
-    return simplify(Product(self, n))
+    return simplify(Product(n, self))
   def __truediv__(self, n):
     if not isinstance(n, Expression): n = Number(n)
     return simplify(Quotient(self, n))
@@ -118,7 +118,7 @@ class Polynomial(Expression):
     return sum([self.coeff[i]*x**(len(self.coeff-1-i)) for i in range(len(self.coeff))])
   def __str__(self):
     "+".join([f"{c}x^{len(self.coeff)-i-1}"] for i, c in enumerate(self.coeff))
-class TwoVariableEqurtion:
+class TwoVariableEquation:
   def __init__(self, left:Expression, right:Expression):
     self.left = left
     self.right = right
@@ -151,6 +151,12 @@ class StdFunction(Expression):
       self.derivative = lambda argument: Quotient(1, Sum(1, Exponent(argument,2)))
     elif ftype == "ln":
       self.derivative = lambda argument: Exponent(argument, -1)
+    elif ftype == "csc":
+      self.derivative = lambda argument: -1*Product(csc(argument), cot(argument))
+    elif ftype == "sec":
+      self.derivative = lambda argument: Product(tan(argument), sec(argument))
+    elif ftype == "cot":
+      self.derivative = lambda argument: -1*Exponent(csc(argument), 2)
     else:
       raise(exceptions.UnknownStdFunc)
   def __str__(self):
@@ -185,6 +191,9 @@ def tan(exp:Expression): return StdFunction("tan", exp)
 def arcsin(exp:Expression): return StdFunction("arcsin", exp)
 def arccos(exp:Expression): return StdFunction("arccos", exp)
 def arctan(exp:Expression): return StdFunction("arctan", exp)
+def csc(exp:Expression): return StdFunction("csc", exp)
+def sec(exp:Expression): return StdFunction("sec", exp)
+def cot(exp:Expression): return StdFunction("cot", exp)
 
 def simplify(exp):
   if isinstance(exp, Product) or isinstance(exp, Sum) or isinstance(exp, Difference) or isinstance(exp, Quotient):

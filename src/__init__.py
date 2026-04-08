@@ -33,5 +33,5 @@ def differentiate(func, order=1):
     return DyDx()
   elif isinstance(func, DyDx):
     return DyDx(func.degree + 1)
-def implicitlyDifferentiate(equation:TwoVariableEqurtion):
-  return TwoVariableEqurtion(differentiate(equation.left), differentiate(equation.right))
+def implicitlyDifferentiate(equation:TwoVariableEquation):
+  return TwoVariableEquation(differentiate(equation.left), differentiate(equation.right)) 
