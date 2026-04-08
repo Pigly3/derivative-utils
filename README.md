@@ -16,7 +16,7 @@ y = X()*ln(X())
 dydx = differentiate(y)
 print(dydx)
 ```
-The package will return `(ln(x)+(x)^(-1)*x)`.
+The code will print `(ln(x)+(x)^(-1)*x)`.
 
 Expressions support addition, subtraction, multiplication, division, and exponentiation.
 Expressions will be automatically simplified, although current simplifcation is not perfect.
