@@ -6,6 +6,8 @@ def ensureNumber(x):
   return Number(x) if not isinstance(x, Number) else x
 def convertNumber(x):
   return Number(x) if isinstance(x, int) or isinstance(x, float) or isinstance(x, Decimal) else x
+def hasVarName(exp, name):
+  return isinstance(exp, Variable) and exp.name != name
 
 class Expression:
   def __add__(self, n):
@@ -36,7 +38,23 @@ class Expression:
     return simplify(Exponent(self, n))
   def __rpow__(self, n):
     return simplify(Exponent(n, self))
-class Variable(Expression): pass
+class Variable(Expression):
+  def __init__(self, name, iname="x"):
+    self.name = name
+    self.iname = iname
+  def __str__(self):
+    return self.name
+
+  def eval(self, val):
+    val = ensureNumber(val)
+    return val.eval()
+class VarDerivative(Expression):
+  def __init__(self, name, degree=1, iname="x"):
+    self.name = name
+    self.iname = iname #not done
+    self.degree = degree
+  def __str__(self):
+    return f"{self.name}{'\''*self.degree}"
 class MathExpression(Expression):
   def __init__(self, value):
     self.value = value
@@ -99,17 +117,13 @@ class Exponent(Expression):
     val = ensureNumber(val)
     return self.x.eval(val) ** self.exp.eval(val)
 class Y(Variable):
-  def __str__(self):
-    return "y"
-class DyDx(Variable):
+  name = "y"
+class DyDx(VarDerivative):
+  name = "y"
   def __init__(self, degree=1):
     self.degree = degree
-  def __str__(self):
-    if self.degree == 1: return f"y{'\''*self.degree}"
 class X(Variable):
-  def eval(self, val):
-    val = ensureNumber(val)
-    return val.eval()
+  name = "y"
   def __str__(self): return "x"
 class Polynomial(Expression):
   def __init__(self, coefficients):
@@ -120,8 +134,10 @@ class Polynomial(Expression):
     "+".join([f"{c}x^{len(self.coeff)-i-1}"] for i, c in enumerate(self.coeff))
 class TwoVariableEquation:
   def __init__(self, left:Expression, right:Expression):
-    self.left = left
-    self.right = right
+    self.left = convertNumber(left)
+    self.right = convertNumber(right)
+  def __str__(self):
+    return f"{self.left}={self.right}"
   pass
 class Difference(Expression):
   def __init__(self, a, b):
@@ -262,3 +278,17 @@ def simplify(exp):
     elif isinstance(exp.b, Number) and exp.b == 0:
       return exp.a
   return exp
+class Vector:
+  data = []
+  def __init__(self, data):
+    self.data = data
+  def dot(self, v:Vector):
+    return [i*j for i, j in zip(self.data, v.tolist())]
+  def __len__(self):
+    return len(self.data)
+  def tolist(self):
+    return self.data
+  def __mul__(self, v):
+    return self.dot(self, v)
+  def __rmul__(self, v):
+    return self.dot(self, v)
