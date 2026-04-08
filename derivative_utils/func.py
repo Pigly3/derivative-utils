@@ -1,7 +1,7 @@
-from util import *
-from const import *
+from derivative_utils.util import *
+from derivative_utils.const import *
 from decimal import Decimal
-from expressions import *
+from derivative_utils.expressions import *
 
 def cosine(x, terms=100, places=12):
     o = 0

@@ -1,4 +1,4 @@
-from expressions import *
+from derivative_utils.expressions import *
 from __init__ import differentiate
 def newtonMethod(function:MathExpression, prec=0.01, maxTries=1000):
   guess = 0

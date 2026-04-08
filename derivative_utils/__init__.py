@@ -1,5 +1,5 @@
-from expressions import *
-from dat import *
+from derivative_utils.expressions import *
+from derivative_utils.dat import *
 
 def differentiate(func, order=1):
   func = simplify(func)

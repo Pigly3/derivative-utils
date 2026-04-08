@@ -1,6 +1,6 @@
 from decimal import Decimal
-import exceptions
-from func import *
+from derivative_utils import exceptions
+from derivative_utils.func import *
 
 def ensureNumber(x):
   return Number(x) if not isinstance(x, Number) else x
