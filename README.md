@@ -9,8 +9,8 @@ This is in alpha, and may not work as intended.
 
 ### Get exact expressions for derivatives
 ```python
-from derivative-utils import differentiate
-from derivative-utils.expressions import *
+from derivative_utils import differentiate
+from derivative_utils.expressions import *
 
 y = X()*ln(X())
 dydx = differentiate(y)
